@@ -8,13 +8,13 @@ jobs:
     steps:
       - checkout
       - run: ./gradlew clean build
-  owasp-scan:
+  dependency-scan:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
     steps:
       - checkout
-      - run: ./gradlew dependencyCheckAnalyze --info
-  anchore-scan:
+      - run: ./gradlew dependencyCheckAnalyze
+  image-scan:
     executor: anchore/anchore_engine
     steps:
       - setup_remote_docker
@@ -35,9 +35,9 @@ workflows:
   fullrun:
     jobs:
       - build
-      - owasp-scan:
+      - dependency-scan:
           requires:
             - build
-      - anchore-scan:
+      - image-scan:
           requires:
             - build

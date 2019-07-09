@@ -1,9 +1,19 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'org.owasp:dependency-check-gradle:5.1.0'
+	}
+}
+
 plugins {
 	id 'org.springframework.boot' version '2.1.6.RELEASE'
 	id "com.palantir.docker" version "0.22.1"
 	id 'java'
 }
 
+apply plugin: 'org.owasp.dependencycheck'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'com.palantir.docker'
 
@@ -16,8 +26,15 @@ repositories {
 }
 
 dependencies {
+//	Uncomment the following dependecy to break the build due to dependency scan
+//	implementation 'org.openapitools:openapi-generator-gradle-plugin:3.3.2'
 	implementation 'org.springframework.boot:spring-boot-starter'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyCheck {
+	failBuildOnCVSS = 4
+	failOnError = true
 }
 
 task unpack(type: Copy) {
@@ -25,6 +42,7 @@ task unpack(type: Copy) {
 	from(zipTree(tasks.bootJar.outputs.files.singleFile))
 	into("build/dependency")
 }
+
 docker {
 	name "${project.group}/${bootJar.baseName}"
 	copySpec.from(tasks.unpack.outputs).into("dependency")
