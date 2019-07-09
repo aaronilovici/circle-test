@@ -38,6 +38,6 @@ workflows:
       - owasp-scan:
           requires:
             - build
-      - scan:
+      - anchore-scan:
           requires:
             - build
