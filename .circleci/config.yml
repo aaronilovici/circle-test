@@ -9,6 +9,12 @@ jobs:
       - image: circleci/openjdk:11-jdk
     steps:
       - checkout
+      - run: ./gradlew clean build -x test
+  test:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - checkout
       - run: ./gradlew clean build
   dependency-scan:
     docker:
@@ -37,9 +43,12 @@ workflows:
   fullrun:
     jobs:
       - build
+      - test:
+          requires:
+            - build
       - dependency-scan:
           requires:
-            - build
+            - test
       - image-scan:
           requires:
-            - build
+            - test
