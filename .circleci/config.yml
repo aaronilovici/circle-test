@@ -29,7 +29,6 @@ jobs:
       - checkout
       - run:
           command: 'docker build -t "localhost:5000/circle-test:latest" .'
-          name: build container
       - anchore/analyze_local_image:
           dockerfile_path: ./Dockerfile
           image_name: 'localhost:5000/circle-test:latest'
@@ -39,6 +38,14 @@ jobs:
       - anchore/parse_reports
       - store_artifacts:
           path: anchore-reports
+  deploy:
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          command: 'docker build -t "localhost:5000/circle-test:latest" .'
+          command: 'docker push localhost:5000/circle-test:latest'
+
 workflows:
   fullrun:
     jobs:
@@ -52,3 +59,7 @@ workflows:
       - image-scan:
           requires:
             - test
+      - deploy:
+          requires:
+            - dependency-scan
+            - image-scan
