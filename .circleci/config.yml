@@ -1,0 +1,37 @@
+version: 2.1
+orbs:
+  owasp: entur/owasp@0.0.2
+  anchore: anchore/anchore-engine@1.4.0
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+    steps:
+      - checkout
+      - run: ./gradlew clean build
+  scan:
+    executor: anchore/anchore_engine
+    steps:
+      - checkout
+      - run:
+          command: 'docker build -t "localhost:5000/circle-test:latest" .'
+          name: build container
+      - anchore/analyze_local_image:
+          dockerfile_path: ./Dockerfile
+          image_name: 'localhost:5000/circle-test:latest'
+          policy_bundle_file_path: .circleci/.anchore/policy_bundle.json
+          policy_failure: true
+          timeout: '500'
+      - anchore/parse_reports
+      - store_artifacts:
+          path: anchore-reports
+workflows:
+  fullrun:
+    jobs:
+      - build
+      - owasp/owasp_dependency_check:
+          requires:
+              - build
+      - scan:
+          requires:
+            - build
