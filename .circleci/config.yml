@@ -12,6 +12,7 @@ jobs:
   scan:
     executor: anchore/anchore_engine
     steps:
+      - setup_remote_docker
       - checkout
       - run:
           command: 'docker build -t "localhost:5000/circle-test:latest" .'
