@@ -1,6 +1,6 @@
 # Uncomment this to fail the Anchore image scan
 # FROM openjdk:11-jdk-slim
-FROM adoptopenjdk/openjdk-11:alpine-slim
+FROM hirokimatsumoto/alpine-openjdk-11:latest
 VOLUME /tmp
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
