@@ -19,7 +19,8 @@ apply plugin: 'com.palantir.docker'
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.11'
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
 repositories {
 	mavenCentral()
