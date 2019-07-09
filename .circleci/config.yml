@@ -1,6 +1,5 @@
 version: 2.1
 orbs:
-  owasp: entur/owasp@0.0.2
   anchore: anchore/anchore-engine@1.4.0
 jobs:
   build:
@@ -9,7 +8,13 @@ jobs:
     steps:
       - checkout
       - run: ./gradlew clean build
-  scan:
+  owasp-scan:
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+    steps:
+      - checkout
+      - run: ./gradlew dependencyCheckAnalyze --info
+  anchore-scan:
     executor: anchore/anchore_engine
     steps:
       - setup_remote_docker
@@ -30,9 +35,9 @@ workflows:
   fullrun:
     jobs:
       - build
-      - owasp/owasp_dependency_check:
+      - owasp-scan:
           requires:
-              - build
+            - build
       - scan:
           requires:
             - build
