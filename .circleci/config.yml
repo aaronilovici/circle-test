@@ -22,13 +22,27 @@ jobs:
     steps:
       - checkout
       - run: ./gradlew dependencyCheckAnalyze
+
+  create-image:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - checkout
+      - run:
+          command: |
+            docker build -t "localhost:5000/circle-test:latest" .
+            docker save circle-test:latest > circle-test_latest.jar
+
+
   image-scan:
     executor: anchore/anchore_engine
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - checkout
       - run:
-          command: 'docker build -t "localhost:5000/circle-test:latest" .'
+          command: |
+            docker load circle-test_latest.jar
       - anchore/analyze_local_image:
           dockerfile_path: ./Dockerfile
           image_name: 'localhost:5000/circle-test:latest'
@@ -38,16 +52,19 @@ jobs:
       - anchore/parse_reports
       - store_artifacts:
           path: anchore-reports
+
+
   deploy:
     docker:
       - image: circleci/openjdk:11-jdk
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - checkout
       - run:
-          command: 'docker build -t "localhost:5000/circle-test:latest" .'
-      - run:
-          command: 'docker push localhost:5000/circle-test:latest'
+          command: |
+            docker load circle-test_latest.jar
+            docker push localhost:5000/circle-test:latest
 
 workflows:
   fullrun:
@@ -59,10 +76,12 @@ workflows:
       - dependency-scan:
           requires:
             - test
-      - image-scan:
-          requires:
-            - test
-      - deploy:
+      - create-image:
           requires:
             - dependency-scan
+      - image-scan:
+          requires:
+            - create-image
+      - deploy:
+          requires:
             - image-scan
