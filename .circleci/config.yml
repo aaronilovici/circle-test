@@ -46,8 +46,8 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - checkout
-      - run:
-          command: 'docker load < circle-test_latest.tar'
+   #   - run:
+   #       command: 'docker load < circle-test_latest.tar'
       - anchore/analyze_local_image:
           dockerfile_path: ./Dockerfile
           image_name: 'localhost:5000/circle-test:latest'
@@ -68,7 +68,7 @@ jobs:
       - checkout
       - run:
           command: |
-            docker load circle-test_latest.tar
+            docker load < circle-test_latest.tar
             docker push localhost:5000/circle-test:latest
 
 workflows:
