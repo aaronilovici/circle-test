@@ -78,7 +78,7 @@ workflows:
             - test
       - create-image:
           requires:
-            - dependency-scan
+            - test
       - image-scan:
           requires:
             - create-image
