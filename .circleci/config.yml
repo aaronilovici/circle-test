@@ -35,9 +35,9 @@ jobs:
           docker_layer_caching: true
       - checkout
       - run:
-          command: |
-            docker build -t "localhost:5000/circle-test:latest" .
-            docker save circle-test:latest > circle-test_latest.jar
+          command: 'docker build -t "localhost:5000/circle-test:latest" .'
+      - run:
+          command: 'docker save circle-test:latest > circle-test_latest.tar'
 
 
   image-scan:
@@ -48,7 +48,7 @@ jobs:
       - checkout
       - run:
           command: |
-            docker load circle-test_latest.jar
+            docker load circle-test_latest.tar
       - anchore/analyze_local_image:
           dockerfile_path: ./Dockerfile
           image_name: 'localhost:5000/circle-test:latest'
@@ -69,7 +69,7 @@ jobs:
       - checkout
       - run:
           command: |
-            docker load circle-test_latest.jar
+            docker load circle-test_latest.tar
             docker push localhost:5000/circle-test:latest
 
 workflows:
