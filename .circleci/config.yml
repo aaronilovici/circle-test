@@ -47,8 +47,7 @@ jobs:
           docker_layer_caching: true
       - checkout
       - run:
-          command: |
-            docker load circle-test_latest.tar
+          command: 'docker load localhost:5000/circle-test:latest'
       - anchore/analyze_local_image:
           dockerfile_path: ./Dockerfile
           image_name: 'localhost:5000/circle-test:latest'
