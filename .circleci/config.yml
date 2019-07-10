@@ -37,7 +37,7 @@ jobs:
       - run:
           command: 'docker build -t "localhost:5000/circle-test:latest" .'
       - run:
-          command: 'docker save circle-test:latest > circle-test_latest.tar'
+          command: 'docker save localhost:5000/circle-test:latest > circle-test_latest.tar'
 
 
   image-scan:
