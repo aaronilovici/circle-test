@@ -65,20 +65,18 @@ jobs:
       - anchore/parse_reports
       - store_artifacts:
           path: anchore-reports
-
-#  deploy:
-#    docker:
-#      - image: circleci/openjdk:11-jdk
-#    steps:
-#      - setup_remote_docker:
-#            docker_layer_caching: true
-#      - checkout
-#      - attach_workspace:
-#          at: /tmp/workspace
-#      - run:
-#          command: 'docker build -t "localhost:5000/circle-test:latest" .'
-#      - run:
-#          command: 'docker push localhost:5000/circle-test:latest'
+  deploy:
+    - setup_remote_docker:
+        docker_layer_caching: true
+    - checkout
+    - attach_workspace:
+        at: /tmp/workspace
+    - run:
+        command: 'ls -al /tmp/workspace'
+    - run:
+        command: 'docker load -i /tmp/workspace/circle-test_latest.tar'
+    - run:
+        command: 'docker push localhost:5000/circle-test:latest aaronilovici/circletestrepo:1.0.test'
 
 workflows:
   fullrun:
@@ -99,6 +97,6 @@ workflows:
       - image-scan:
           requires:
             - create-image
-#      - deploy:
-#          requires:
-#            - image-scan
+      - deploy:
+          requires:
+            - image-scan
