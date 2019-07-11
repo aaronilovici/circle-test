@@ -48,15 +48,21 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run:
+          command: 'pwd'
+      - run:
           command: 'ls -al /tmp/workspace'
 
   image-scan:
     executor: anchore/anchore_engine
     steps:
       - setup_remote_docker
-      - checkout
+      - attach_workspace:
+        at: /tmp/workspace
+
       - run:
-          command: 'docker build -t "localhost:5000/circle-test:latest" .'
+          command: 'docker load -i circle-test_latest.tar'
+#      - run:
+#          command: 'docker build -t "localhost:5000/circle-test:latest" .'
       - anchore/analyze_local_image:
           dockerfile_path: ./Dockerfile
           image_name: 'localhost:5000/circle-test:latest'
