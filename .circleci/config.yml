@@ -22,11 +22,7 @@ jobs:
       - image: circleci/openjdk:11-jdk
     steps:
       - checkout
-      - run: './gradlew sonarqube \
-          -Dsonar.projectKey=aaronilovici_circle-test \
-          -Dsonar.organization=aaronilovici \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.login=b46765c6c8f0afd33d2427a6ec3daebeffea93b3'
+      - run: ./gradlew sonarqube -Dsonar.projectKey=aaronilovici_circle-test -Dsonar.organization=aaronilovici -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=b46765c6c8f0afd33d2427a6ec3daebeffea93b3
   dependency-scan:
     docker:
       - image: circleci/openjdk:11-jdk
