@@ -36,10 +36,10 @@ jobs:
           docker_layer_caching: true
       - checkout
       - run:
-          command: 'docker build -t "localhost:5000/circle-test:latest" .'
+          command: 'docker build -t "aaronilovici/circletestrepo:1.0.test" .'
       - run: mkdir -p workspace
       - run:
-          command: 'docker save localhost:5000/circle-test:latest > workspace/circle-test_latest.tar'
+          command: 'docker save aaronilovici/circletestrepo:1.0.test > workspace/circle-test_latest.tar'
       - persist_to_workspace:
           root: workspace
           paths:
@@ -58,7 +58,7 @@ jobs:
           command: 'docker load -i /tmp/workspace/circle-test_latest.tar'
       - anchore/analyze_local_image:
           dockerfile_path: ./Dockerfile
-          image_name: 'localhost:5000/circle-test:latest'
+          image_name: 'aaronilovici/circletestrepo:1.0.test'
           policy_bundle_file_path: .circleci/.anchore/policy_bundle.json
           policy_failure: true
           timeout: '500'
@@ -79,7 +79,7 @@ jobs:
       - run:
           command: 'docker load -i /tmp/workspace/circle-test_latest.tar'
       - run:
-          command: 'docker tag localhost:5000/circle-test:latest aaronilovici/circletestrepo:1.0.test'
+          command: 'docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}'
       - run:
           command: 'docker push docker.io/aaronilovici/circletestrepo:1.0.test'
 
