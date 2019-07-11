@@ -4,22 +4,18 @@ version: 2.1
 orbs:
   anchore: anchore/anchore-engine@1.4.0
 jobs:
-
   build:
     docker:
       - image: circleci/openjdk:11-jdk
     steps:
       - checkout
       - run: ./gradlew clean build -x test
-
   test:
     docker:
       - image: circleci/openjdk:11-jdk
     steps:
       - checkout
       - run: ./gradlew clean build
-
-
   dependency-scan:
     docker:
       - image: circleci/openjdk:11-jdk
@@ -27,18 +23,32 @@ jobs:
       - checkout
       - run: ./gradlew dependencyCheckAnalyze
 
+
   create-image:
     docker:
       - image: circleci/openjdk:11-jdk
     steps:
+      - run: mkdir -p workspace
       - setup_remote_docker:
           docker_layer_caching: true
       - checkout
       - run:
           command: 'docker build -t "localhost:5000/circle-test:latest" .'
       - run:
-          command: 'docker save localhost:5000/circle-test:latest > circle-test_latest.tar'
+          command: 'docker save localhost:5000/circle-test:latest > workspace/circle-test_latest.tar'
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - circle-test_latest.tar
 
+  test-image-being-saved:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          command: 'ls -al /tmp/workspace'
 
   image-scan:
     executor: anchore/anchore_engine
@@ -62,13 +72,13 @@ jobs:
     docker:
       - image: circleci/openjdk:11-jdk
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: true
+      - setup_remote_docker
       - checkout
       - run:
-          command: |
-            docker load < circle-test_latest.tar
-            docker push localhost:5000/circle-test:latest
+          command: 'docker build -t "localhost:5000/circle-test:latest" .'
+      - run:
+          command: 'docker push localhost:5000/circle-test:latest'
+
 
 workflows:
   fullrun:
@@ -83,6 +93,9 @@ workflows:
       - create-image:
           requires:
             - test
+      - test-image-being-saved:
+          requires:
+            - create-image
       - image-scan:
           requires:
             - create-image
