@@ -81,7 +81,7 @@ jobs:
       - run:
           command: 'docker tag localhost:5000/circle-test:latest aaronilovici/circletestrepo:1.0.test'
       - run:
-          command: 'docker push aaronilovici/circletestrepo:1.0.test'
+          command: 'docker push docker.io/aaronilovici/circletestrepo:1.1.test'
 
 workflows:
   fullrun:
