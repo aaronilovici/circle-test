@@ -66,19 +66,19 @@ jobs:
       - store_artifacts:
           path: anchore-reports
   deploy:
-    - docker:
+    docker:
         - image: circleci/openjdk:11-jdk
-      steps:
-        - setup_remote_docker:
-            docker_layer_caching: true
-        - checkout
-        - attach_workspace:
-            at: /tmp/workspace
-        - run:
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
           command: 'ls -al /tmp/workspace'
-        - run:
+      - run:
           command: 'docker load -i /tmp/workspace/circle-test_latest.tar'
-        - run:
+      - run:
           command: 'docker push localhost:5000/circle-test:latest aaronilovici/circletestrepo:1.0.test'
 
 workflows:
