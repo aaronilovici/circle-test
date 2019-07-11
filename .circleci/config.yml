@@ -3,7 +3,7 @@
 version: 2.1
 orbs:
   anchore: anchore/anchore-engine@1.4.0
-#  sonarqube: onehq/sonarqube@0.3.0
+  sonarqube: onehq/sonarqube@0.3.0
 jobs:
   build:
     docker:
