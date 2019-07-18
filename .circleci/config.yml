@@ -112,12 +112,14 @@ workflows:
   tests_only:
     jobs:
       - build
-          branches:
-            only:
-              - dev
+          filters:
+            branches:
+              only:
+                - dev
       - test:
-          branches:
-            only:
-              - dev
-          requires:
-            - build
+          filters:
+            branches:
+              only:
+                - dev
+            requires:
+              - build
