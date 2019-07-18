@@ -109,3 +109,15 @@ workflows:
       - deploy:
           requires:
             - hold
+  tests_only:
+    jobs:
+      - build
+          branches:
+            only:
+              - dev
+      - test:
+          branches:
+            only:
+              - dev
+          requires:
+            - build
