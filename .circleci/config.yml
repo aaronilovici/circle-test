@@ -1,6 +1,7 @@
 # Compile Code, Unit Test, Dependency Scan, Static Analysis Scan, Build Image, Vulnerability Scan, Deploy Image to DockerHub
 
 version: 2.1
+
 orbs:
   anchore: anchore/anchore-engine@1.4.0
 jobs:
