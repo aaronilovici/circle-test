@@ -111,15 +111,15 @@ workflows:
             - hold
   tests_only:
     jobs:
-      - build
+      - build:
           filters:
             branches:
               only:
                 - dev
       - test:
+          requires:
+            - build
           filters:
             branches:
               only:
                 - dev
-            requires:
-              - build
