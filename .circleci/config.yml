@@ -102,6 +102,10 @@ workflows:
       - image-scan:
           requires:
             - create-image
+      - hold:
+          type: approval
+          requires:
+            - image-scan
       - deploy:
           requires:
             - image-scan
