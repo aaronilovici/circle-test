@@ -66,7 +66,7 @@ jobs:
           path: anchore-reports
   deploy:
     docker:
-        - image: circleci/openjdk:11-jdk
+      - image: circleci/openjdk:11-jdk
     steps:
       - setup_remote_docker:
           docker_layer_caching: true
@@ -82,6 +82,7 @@ jobs:
       - run:
           command: 'docker push docker.io/aaronilovici/circletestrepo:1.0.test'
 
+workflows:
   fullrun:
     jobs:
       - build
