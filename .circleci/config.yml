@@ -82,42 +82,42 @@ jobs:
       - run:
           command: 'docker push docker.io/aaronilovici/circletestrepo:1.0.test'
 
-#  fullrun:
-#    jobs:
-#      - build
-#      - test:
-#          requires:
-#            - build
-#      - dependency-scan:
-#          requires:
-#            - test
-#      - quality-scan:
-#          requires:
-#            - test
-#      - create-image:
-#          requires:
-#            - test
-#      - image-scan:
-#          requires:
-#            - create-image
-#      - hold:
-#          type: approval
-#          requires:
-#            - image-scan
-#      - deploy:
-#          requires:
-#            - hold
-#  tests_only:
-#    jobs:
-#      - build:
-#          filters:
-#            branches:
-#              only:
-#                - dev
-#      - test:
-#          requires:
-#            - build
-#          filters:
-#            branches:
-#              only:
-#                - dev
+  fullrun:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - dependency-scan:
+          requires:
+            - test
+      - quality-scan:
+          requires:
+            - test
+      - create-image:
+          requires:
+            - test
+      - image-scan:
+          requires:
+            - create-image
+      - hold:
+          type: approval
+          requires:
+            - image-scan
+      - deploy:
+          requires:
+            - hold
+  tests_only:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - dev
+      - test:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - dev
