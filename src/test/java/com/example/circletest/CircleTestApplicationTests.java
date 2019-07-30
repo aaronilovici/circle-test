@@ -24,6 +24,6 @@ public class CircleTestApplicationTests {
 	// Uncomment this test to fail the Circle 'test' build step
 	@Test
 	public void failTestStep() {
-		assert(false);
+		assert(true);
 	}
 }
