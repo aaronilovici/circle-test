@@ -41,7 +41,7 @@ orbs:
             type: string
         steps:
           - checkout
-          - run: ./gradlew sonarqube -Dsonar.projectKey=aaronilovici_circle-test -Dsonar.organization=aaronilovici -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=9cd2de0c1bcdca6f657be90edd33584ffbd735c2 -Dsonar.branch.target=master -Dsonar.branch.name=sonarConfiguration
+          - run: ./gradlew sonarqube -Dsonar.projectKey=aaronilovici_circle-test -Dsonar.organization=aaronilovici -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=9cd2de0c1bcdca6f657be90edd33584ffbd735c2 -Dsonar.branch.target=master -Dsonar.branch.name=sonarConfiguration --info
 
     jobs:
       full-build:
@@ -61,9 +61,6 @@ orbs:
             type: string
         executor: base-executor
         steps:
-          - build
-          - test
-          - dependency-scan
           - quality-scan:
               sonar_key: <<parameters.sonar_key>>
               sonar_org: <<parameters.sonar_org>>
