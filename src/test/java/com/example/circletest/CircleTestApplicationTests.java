@@ -22,17 +22,16 @@ public class CircleTestApplicationTests {
 	public void takeALongTimeTest() throws InterruptedException {
 		sleep(5000);
 	}
-//
-//	@Test
-//	public void printSomethingOutTest() {
-//		System.out.println("Something.");
-//	}
+
+	@Test
+	@Ignore
+	public void printSomethingOutTest() {
+		System.out.println("Something.");
+	}
 
 	// Uncomment this test to fail the Circle 'test' build step
-	/*
-	@Test
-	public void failTestStep() {
-		assert(false);
-	}
-	*/
+//	@Test
+//	public void failTestStep() {
+//		assert(false);
+//	}
 }

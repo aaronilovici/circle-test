@@ -3,8 +3,16 @@ package com.example.circletest;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 @SpringBootApplication
 public class CircleTestApplication {
+
+	private List<Integer> list = Arrays.asList(1, 2, 3, 4);
+	private List<Integer> list2 = Arrays.asList(1, 2, 3, 4);
+	private List<Integer> list5 = Arrays.asList(1, 2, 3, 4);
 
 	public static void main(String[] args) {
 		try {
@@ -59,6 +67,16 @@ public class CircleTestApplication {
 		if (param == 1) {
 			param =+ 1;
 		}
-		return param;
+ 		return param;
+	}
+
+	public String badCode () {
+		list.add(1);
+		return "THIS IS BAD CODE";
+	}
+
+	public String alsoBadCode () {
+		list.add(1);
+		return "THIS IS BAD CODE";
 	}
 }
