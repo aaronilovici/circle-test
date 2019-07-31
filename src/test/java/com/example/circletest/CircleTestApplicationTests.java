@@ -24,7 +24,7 @@ public class CircleTestApplicationTests {
 //	@Test
 //	public void printSomethingOutTest() {
 //		System.out.println("Something.");
-	}
+//	}
 
 	// Uncomment this test to fail the Circle 'test' build step
 	/*
