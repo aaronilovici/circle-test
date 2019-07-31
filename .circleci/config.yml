@@ -47,9 +47,9 @@ orbs:
               -Dsonar.organization=<<parameters.sonar_org>>
               -Dsonar.host.url=<<parameters.sonar_url>>
               -Dsonar.login=<<parameters.sonar_token>>
-              -Dsonar.branch.name=${CIRCLE_BRANCH}
-              -Dsonar.branch.target=master
-              --debug
+#              -Dsonar.branch.name=${CIRCLE_BRANCH}
+#              -Dsonar.branch.target=master
+              --info
     jobs:
       full-build:
         executor: base-executor
