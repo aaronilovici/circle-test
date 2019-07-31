@@ -3,6 +3,7 @@ package com.example.circletest;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -14,12 +15,13 @@ public class CircleTestApplication {
 	private List<Integer> list2 = Arrays.asList(1, 2, 3, 4);
 	private List<Integer> list5 = Arrays.asList(1, 2, 3, 4);
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SocketException {
 		try {
 			something(1);
 		} catch (NullPointerException e) {
 		}
 
+		Util.getFirstNonLoopbackAddress(true, true);
 		SpringApplication.run(CircleTestApplication.class, args);
 	}
 

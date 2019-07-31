@@ -1,13 +1,17 @@
 package com.example.circletest;
 
+import com.sun.net.httpserver.HttpContext;
+
 import java.io.File;
 import java.net.*;
+import java.net.http.HttpRequest;
 import java.util.Enumeration;
+import java.util.UUID;
 
 public class Util {
 
 
-    public void fileReader() throws SocketException {
+    public static void fileReader() throws SocketException {
         File file = null;
 
         if (file != null) {
@@ -23,8 +27,15 @@ public class Util {
         }
     }
 
+    public static void somethingAboutCookies(HttpRequest request) {
+        String cartId = UUID.randomUUID().toString();
+        String query = "SELECT * FROM accounts WHERE custID='" + request.getClass().getResource("id") + "'";
+
+    }
+
     public static InetAddress getFirstNonLoopbackAddress(boolean preferIpv4, boolean preferIPv6)
             throws SocketException {
+        fileReader();
         Enumeration en = NetworkInterface.getNetworkInterfaces();
         while (en.hasMoreElements()) {
             NetworkInterface i = (NetworkInterface) en.nextElement();
