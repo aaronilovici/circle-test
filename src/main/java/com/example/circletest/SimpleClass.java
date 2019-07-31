@@ -38,6 +38,11 @@ public class SimpleClass {
     }
 
     public String badCode () {
+        try {
+            lastbutnotleast(1);
+        } catch (NullPointerException e) {
+        }
+
         list.add(1);
         return "THIS IS BAD CODE";
     }
