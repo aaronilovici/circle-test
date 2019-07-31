@@ -69,9 +69,9 @@ orbs:
             type: string
         executor: base-executor
         steps:
-          - build
-          - test
-          - dependency-scan
+#          - build
+#          - test
+#          - dependency-scan
           - quality-scan:
               sonar_key: <<parameters.sonar_key>>
               sonar_org: <<parameters.sonar_org>>
