@@ -25,6 +25,16 @@ orbs:
               path: ~/test-results
           - store_artifacts:
               path: ~/test-results/junit
+      reporting:
+        steps:
+          - checkout
+          - run:
+              name: SONAR SCANNER MAYBE
+              command: |
+                export SONAR_RESULT=./results/results.xml
+                export SONAR_COVERAGE=$(ls -m ./results/coverage*.xml | sed 's/ //g' | sed ':a;N;$!ba;s/\n//g')
+                scripts/tests/runsonar.sh
+
       dependency-scan:
         steps:
           - checkout
@@ -49,6 +59,7 @@ orbs:
         steps:
           - build
           - test
+          - reporting
       full-build-and-scan:
         parameters:
           sonar_key:
@@ -74,9 +85,10 @@ orbs:
 workflows:
   main:
     jobs:
-      - connexta-gradle/full-build-and-scan:
-          name: AaronBuildAndScan
-          sonar_key: aaronilovici_circle-test
-          sonar_org: aaronilovici
-          sonar_url: https://sonarcloud.io
-          sonar_token: ${SONAR_TOKEN}
+      - connexta-gradle/full-build
+#      - connexta-gradle/full-build-and-scan:
+#          name: AaronBuildAndScan
+#          sonar_key: aaronilovici_circle-test
+#          sonar_org: aaronilovici
+#          sonar_url: https://sonarcloud.io
+#          sonar_token: ${SONAR_TOKEN}
