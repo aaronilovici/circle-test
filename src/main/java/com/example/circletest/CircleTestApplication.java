@@ -54,4 +54,17 @@ public class CircleTestApplication {
 				break;
 		}
 	}
+
+	public static void lastbutnotleast(int param) throws NullPointerException {
+		switch (param) {
+			case 0:
+				System.out.println("BLAH");
+				break;
+			default:
+				throw new NullPointerException();
+			case 1:
+				System.out.println("BLAH TWICE");
+				break;
+		}
+	}
 }

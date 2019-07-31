@@ -1,5 +1,6 @@
 package com.example.circletest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,10 +17,11 @@ public class CircleTestApplicationTests {
 
 	}
 
-//	@Test
-//	public void takeALongTimeTest() throws InterruptedException {
-//		sleep(5000);
-//	}
+	@Test
+	@Ignore
+	public void takeALongTimeTest() throws InterruptedException {
+		sleep(5000);
+	}
 //
 //	@Test
 //	public void printSomethingOutTest() {
