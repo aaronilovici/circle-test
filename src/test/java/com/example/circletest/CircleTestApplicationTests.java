@@ -11,19 +11,19 @@ import static java.lang.Thread.sleep;
 @SpringBootTest
 public class CircleTestApplicationTests {
 
-	@Test
-	public void contextLoads() {
+//	@Test
+//	public void contextLoads() {
+//
+//	}
 
-	}
-
-	@Test
-	public void takeALongTimeTest() throws InterruptedException {
-		sleep(5000);
-	}
-
-	@Test
-	public void printSomethingOutTest() {
-		System.out.println("Something.");
+//	@Test
+//	public void takeALongTimeTest() throws InterruptedException {
+//		sleep(5000);
+//	}
+//
+//	@Test
+//	public void printSomethingOutTest() {
+//		System.out.println("Something.");
 	}
 
 	// Uncomment this test to fail the Circle 'test' build step
