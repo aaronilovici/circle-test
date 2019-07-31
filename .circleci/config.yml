@@ -1,81 +1,111 @@
+# Compile Code, Unit Test, Dependency Scan, Static Analysis Scan, Build Image, Vulnerability Scan, Deploy Image to DockerHub
 version: 2.1
-description: An inline orb for common groups of Gradle commands
-
 orbs:
-  connexta-gradle:
-    executors:
-      base-executor:
-        docker:
-          - image: circleci/openjdk:11-jdk
-    commands:
-      build:
-        steps:
-          - checkout
-          - run: ./gradlew clean build -x test
-      test:
-        steps:
-          - checkout
-          - run: ./gradlew clean build
-          - run:
-              command: |
-                mkdir -p ~/test-results/junit/
-                find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
-              when: always
-          - store_test_results:
-              path: ~/test-results
-          - store_artifacts:
-              path: ~/test-results/junit
-      dependency-scan:
-        steps:
-          - checkout
-          - run: ./gradlew dependencyCheckAnalyze
-      quality-scan:
-        parameters:
-          sonar_key:
-            type: string
-          sonar_org:
-            type: string
-          sonar_url:
-            type: string
-          sonar_token:
-            type: string
-        steps:
-          - checkout
-          - run: git branch --force master origin/master
-          - run: ./gradlew sonarqube -Dsonar.projectKey=aaronilovici_circle-test -Dsonar.organization=aaronilovici -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=9cd2de0c1bcdca6f657be90edd33584ffbd735c2 -Dsonar.branch.target=master -Dsonar.branch.name=sonarConfiguration --info
-
-
-    jobs:
-      full-build:
-        executor: base-executor
-        steps:
-          - build
-          - test
-      full-build-and-scan:
-        parameters:
-          sonar_key:
-            type: string
-          sonar_org:
-            type: string
-          sonar_url:
-            type: string
-          sonar_token:
-            type: string
-        executor: base-executor
-        steps:
-          - quality-scan:
-              sonar_key: <<parameters.sonar_key>>
-              sonar_org: <<parameters.sonar_org>>
-              sonar_url: <<parameters.sonar_url>>
-              sonar_token: <<parameters.sonar_token>>
-
+  anchore: anchore/anchore-engine@1.4.0
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - checkout
+      - run: ./gradlew clean build -x test
+  test:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - checkout
+      - run: ./gradlew clean build
+  dependency-scan:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - checkout
+      - run: ./gradlew dependencyCheckAnalyze
+  quality-scan:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - checkout
+      - run: git branch --force master origin/master
+      - run: ./gradlew sonarqube -Dsonar.projectKey=aaronilovici_circle-test -Dsonar.organization=aaronilovici -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=9cd2de0c1bcdca6f657be90edd33584ffbd735c2 -Dsonar.branch.target=master -Dsonar.branch.name=sonarConfiguration --info
+  create-image:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - checkout
+      - run:
+          command: 'docker build -t \"aaronilovici/circletestrepo:1.0.test\" .'
+      - run: mkdir -p workspace
+      - run:
+          command: 'docker save aaronilovici/circletestrepo:1.0.test > workspace/circle-test_latest.tar'
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - circle-test_latest.tar
+  image-scan:
+    executor: anchore/anchore_engine
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          command: 'ls -al /tmp/workspace'
+      - run:
+          command: 'docker load -i /tmp/workspace/circle-test_latest.tar'
+      - anchore/analyze_local_image:
+          dockerfile_path: ./Dockerfile
+          image_name: 'aaronilovici/circletestrepo:1.0.test'
+          policy_bundle_file_path: .circleci/.anchore/policy_bundle.json
+          policy_failure: true
+          timeout: '500'
+      - anchore/parse_reports
+      - store_artifacts:
+          path: anchore-reports
+  deploy:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          command: 'ls -al /tmp/workspace'
+      - run:
+          command: 'docker load -i /tmp/workspace/circle-test_latest.tar'
+      - run:
+          command: 'docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}'
+      - run:
+          command: 'docker push docker.io/aaronilovici/circletestrepo:1.0.test'
 
 workflows:
-  main:
+  fullrun:
     jobs:
-      - connexta-gradle/full-build-and-scan:
-          name: AaronBuildAndScan
-          sonar_key: aaronilovici_circle-test
-          sonar_org: aaronilovici
-          sonar_url: https://sonarcloud.io
-          sonar_token: ${SONAR_TOKEN}
+      - build
+      - test:
+          requires:
+            - build
+#      - dependency-scan:
+#          requires:
+#            - test
+      - quality-scan:
+          requires:
+            - test
+#      - create-image:
+#          requires:
+#            - test
+#      - image-scan:
+#          requires:
+#            - create-image
+#      - hold:
+#          type: approval
+#          requires:
+#            - image-scan
+#      - deploy:
+#          requires:
+#            - hold
