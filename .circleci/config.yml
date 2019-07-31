@@ -41,14 +41,16 @@ orbs:
             type: string
         steps:
           - checkout
-          - run: ./gradlew sonarqube
-            -Dsonar.projectKey=<<parameters.sonar_key>>
-            -Dsonar.organization=<<parameters.sonar_org>>
-            -Dsonar.host.url=<<parameters.sonar_url>>
-            -Dsonar.login=<<parameters.sonar_token>>
-            -Dsonar.branch.name=${CIRCLE_BRANCH}
-            -Dsonar.branch.target=master
-            --info
+          - run:
+              command: |
+                ./gradlew sonarqube |
+                -Dsonar.projectKey=<<parameters.sonar_key>> |
+                -Dsonar.organization=<<parameters.sonar_org>> |
+                -Dsonar.host.url=<<parameters.sonar_url>> |
+                -Dsonar.login=<<parameters.sonar_token>> |
+                -Dsonar.branch.name=${CIRCLE_BRANCH} |
+                -Dsonar.branch.target=masterq |
+                --info
 
     jobs:
       full-build:
