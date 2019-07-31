@@ -7,7 +7,7 @@ import java.util.Enumeration;
 public class Util {
 
 
-    public void fileReader() {
+    public void fileReader() throws SocketException {
         File file = null;
 
         if (file != null) {
@@ -15,6 +15,10 @@ public class Util {
                 getFirstNonLoopbackAddress(true, false);
             } catch (SocketException e) {
                 e.printStackTrace();
+            }
+        } else {
+            if (file.getName() == "BAD CODE") {
+                getFirstNonLoopbackAddress(false, true);
             }
         }
     }
