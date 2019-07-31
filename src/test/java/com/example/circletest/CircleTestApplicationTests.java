@@ -11,10 +11,10 @@ import static java.lang.Thread.sleep;
 @SpringBootTest
 public class CircleTestApplicationTests {
 
-//	@Test
-//	public void contextLoads() {
-//
-//	}
+	@Test
+	public void contextLoads() {
+
+	}
 
 //	@Test
 //	public void takeALongTimeTest() throws InterruptedException {
