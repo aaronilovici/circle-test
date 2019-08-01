@@ -24,10 +24,28 @@ jobs:
   quality-scan:
     docker:
       - image: circleci/openjdk:11-jdk
+    parameters:
+      sonar_key:
+        type: string
+      sonar_org:
+        type: string
+      sonar_url:
+        type: string
+      sonar_token:
+        type: string
     steps:
       - checkout
       - run: git branch --force master origin/master
-      - run: ./gradlew sonarqube -Dsonar.projectKey=aaronilovici_circle-test -Dsonar.organization=aaronilovici -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=9cd2de0c1bcdca6f657be90edd33584ffbd735c2 -Dsonar.pullrequest.key=3 -Dsonar.pullrequest.branch=sonarConfiguration -D-sonar.pullrequest.base=master --info
+      - run:
+          ./gradlew sonarqube
+          -Dsonar.projectKey=<<parameters.sonar_key>>
+          -Dsonar.organization=<<parameters.sonar_org>>
+          -Dsonar.host.url=<<parameters.sonar_url>>
+          -Dsonar.login=<<parameters.sonar_token>>
+          -Dsonar.pullrequest.key=${CIRCLE_PR_NUMBER}
+          -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+          -D-sonar.pullrequest.base=master
+          --info
   create-image:
     docker:
       - image: circleci/openjdk:11-jdk
@@ -96,6 +114,10 @@ workflows:
       - quality-scan:
           requires:
             - test
+          sonar_key: aaronilovici_circle-test
+          sonar_org: aaronilovici
+          sonar_url: https://sonarcloud.io
+          sonar_token: ${SONAR_TOKEN}
       - create-image:
           requires:
             - test
