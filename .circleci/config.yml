@@ -51,7 +51,7 @@ jobs:
           -Dsonar.organization=<<parameters.sonar_org>>
           -Dsonar.host.url=<<parameters.sonar_url>>
           -Dsonar.login=<<parameters.sonar_token>>
-          -Dsonar.pullrequest.key=${CIRCLE_PR_NUMBER}
+          -Dsonar.pullrequest.key=3
           -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
           -D-sonar.pullrequest.base=master
           --info
