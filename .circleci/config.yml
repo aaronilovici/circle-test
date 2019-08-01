@@ -63,7 +63,7 @@ jobs:
           docker_layer_caching: true
       - checkout
       - run:
-          command: 'docker build -t \"aaronilovici/circletestrepo:1.0.test\" .'
+          command: 'docker build -t "aaronilovici/circletestrepo:1.0.test" .'
       - run: mkdir -p workspace
       - run:
           command: 'docker save aaronilovici/circletestrepo:1.0.test > workspace/circle-test_latest.tar'
