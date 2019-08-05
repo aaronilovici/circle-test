@@ -48,7 +48,7 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" != "master" ];
             then
-              ./gradlew sonarqube
+              "./gradlew sonarqube
               -Dsonar.projectKey=<<parameters.sonar_key>>
               -Dsonar.organization=<<parameters.sonar_org>>
               -Dsonar.host.url=<<parameters.sonar_url>>
@@ -56,7 +56,7 @@ jobs:
               -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/}
               -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
               -Dsonar.pullrequest.base=master
-              --info
+              --info"
             fi
   create-image:
     docker:
