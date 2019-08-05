@@ -44,6 +44,7 @@ jobs:
         type: string
     steps:
       - checkout
+      - run: echo $CI_PULL_REQUEST
       - run: git branch --force master origin/master
       - run:
           ./gradlew sonarqube
