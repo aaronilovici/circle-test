@@ -59,7 +59,7 @@ jobs:
           -Dsonar.login=<<parameters.sonar_token>>
           -Dsonar.pullrequest.key=3
           -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
-          -D-sonar.pullrequest.base=master
+          -Dsonar.pullrequest.base=master
           --info
   create-image:
     docker:
