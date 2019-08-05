@@ -48,7 +48,7 @@ jobs:
       - run: echo ${CIRCLE_PULL_REQUEST##*/}
       - run:
           command: |
-            echo 'export PATH=/path/to/foo/bin:$PATH' >> $BASH_ENV
+            echo 'export $PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}' >> $BASH_ENV
             source $BASH_ENV
       - run: echo $PR_NUMBER
       - run:
