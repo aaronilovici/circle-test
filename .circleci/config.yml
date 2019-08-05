@@ -46,9 +46,11 @@ jobs:
       - checkout
       - run: echo $CI_PULL_REQUEST
       - run: echo ${CIRCLE_PULL_REQUEST##*/}
-      - run: export PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}
+      - run:
+          command: |
+            echo 'export PATH=/path/to/foo/bin:$PATH' >> $BASH_ENV
+            source $BASH_ENV
       - run: echo $PR_NUMBER
-      - run: git branch --force master origin/master
       - run:
           ./gradlew sonarqube
           -Dsonar.projectKey=<<parameters.sonar_key>>
