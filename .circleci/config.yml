@@ -47,7 +47,7 @@ jobs:
       - run: echo $CI_PULL_REQUEST
       - run: echo ${CIRCLE_PULL_REQUEST##*/}
       - run: export PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}
-      - run: echo ${PR_NUMBER}
+      - run: echo $PR_NUMBER
       - run: git branch --force master origin/master
       - run:
           ./gradlew sonarqube
