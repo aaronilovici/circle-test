@@ -46,6 +46,7 @@ jobs:
       - checkout
       - run: echo $CI_PULL_REQUEST
       - run: echo ${CIRCLE_PULL_REQUEST##*/}
+      - run: echo '! -z $CIRCLE_PULL_REQUEST'
       - run:
           command: |
             echo 'export $PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}' >> $BASH_ENV
