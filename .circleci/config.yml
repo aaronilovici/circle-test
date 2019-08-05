@@ -15,6 +15,15 @@ jobs:
     steps:
       - checkout
       - run: ./gradlew clean build
+      - run:
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
+      - store_artifacts:
+          path: ~/test-results/junit
   dependency-scan:
     docker:
       - image: circleci/openjdk:11-jdk
@@ -24,10 +33,23 @@ jobs:
   quality-scan:
     docker:
       - image: circleci/openjdk:11-jdk
+    parameters:
+      sonar_key:
+        type: string
+      sonar_org:
+        type: string
+      sonar_url:
+        type: string
+      sonar_token:
+        type: string
     steps:
       - checkout
-#      - run: git branch --force master origin/master
-      - run: ./gradlew sonarqube -Dsonar.projectKey=aaronilovici_circle-test -Dsonar.organization=aaronilovici -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=9cd2de0c1bcdca6f657be90edd33584ffbd735c2 -Dsonar.branch.target=master -Dsonar.branch.name=sonarConfiguration --info
+      - run:
+          command: |
+            if [[ ! -z $CIRCLE_PULL_REQUEST ]];
+            then
+              ./gradlew sonarqube -Dsonar.projectKey=<<parameters.sonar_key>> -Dsonar.organization=<<parameters.sonar_org>> -Dsonar.host.url=<<parameters.sonar_url>> -Dsonar.login=<<parameters.sonar_token>> -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.base=master --info
+            fi
   create-image:
     docker:
       - image: circleci/openjdk:11-jdk
@@ -90,22 +112,26 @@ workflows:
       - test:
           requires:
             - build
-#      - dependency-scan:
-#          requires:
-#            - test
+      - dependency-scan:
+          requires:
+            - test
       - quality-scan:
           requires:
             - test
-#      - create-image:
-#          requires:
-#            - test
-#      - image-scan:
-#          requires:
-#            - create-image
-#      - hold:
-#          type: approval
-#          requires:
-#            - image-scan
-#      - deploy:
-#          requires:
-#            - hold
+          sonar_key: aaronilovici_circle-test
+          sonar_org: aaronilovici
+          sonar_url: https://sonarcloud.io
+          sonar_token: ${SONAR_TOKEN}
+      - create-image:
+          requires:
+            - test
+      - image-scan:
+          requires:
+            - create-image
+      - hold:
+          type: approval
+          requires:
+            - image-scan
+      - deploy:
+          requires:
+            - hold
