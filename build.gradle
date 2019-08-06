@@ -30,7 +30,7 @@ repositories {
 
 dependencies {
 //	Uncomment the following dependecy to break the build due to dependency scan
-	implementation 'org.openapitools:openapi-generator-gradle-plugin:3.3.2'
+//	implementation 'org.openapitools:openapi-generator-gradle-plugin:3.3.2'
 	implementation 'org.springframework.boot:spring-boot-starter'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
