@@ -66,7 +66,7 @@ jobs:
       - persist_to_workspace:
           root: workspace
           paths:
-            - circle-test_latest.tar
+            - temp_archive.tar
   anchore-image-scan:
     executor: anchore/anchore_engine
     steps:
@@ -115,7 +115,7 @@ jobs:
       - run:
           command: 'ls -al /tmp/workspace'
       - run:
-          command: 'docker load -i /tmp/workspace/circle-test_latest.tar'
+          command: 'docker load -i /tmp/workspace/temp_archive.tar'
       - run:
           command: 'docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}'
       - run:
