@@ -154,7 +154,8 @@ workflows:
       - hold:
           type: approval
           requires:
-            - image-scan
+            - anchore-image-scan
+            - snyk-image-scan
       - deploy:
           requires:
             - hold
