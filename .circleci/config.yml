@@ -25,13 +25,6 @@ jobs:
           path: ~/test-results
       - store_artifacts:
           path: ~/test-results/junit
-  snyk-scan:
-    docker:
-      - image: circleci/node:4.8.2
-    steps:
-      - checkout
-      - run: npm install -q
-      - snyk/scan
   dependency-scan:
     docker:
       - image: circleci/openjdk:11-jdk
@@ -74,7 +67,7 @@ jobs:
           root: workspace
           paths:
             - circle-test_latest.tar
-  image-scan:
+  anchore-image-scan:
     executor: anchore/anchore_engine
     steps:
       - setup_remote_docker:
@@ -95,6 +88,21 @@ jobs:
       - anchore/parse_reports
       - store_artifacts:
           path: anchore-reports
+  snyk-image-scan:
+    docker:
+      - image: 'circleci/buildpack-deps:stretch'
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          command: 'ls -al /tmp/workspace'
+      - run:
+          command: 'docker load -i /tmp/workspace/temp_archive.tar'
+      - snyk/scan:
+        docker-image-name: '${IMAGE_REPO_AND_NAME}'
   deploy:
     docker:
       - image: circleci/openjdk:11-jdk
@@ -120,9 +128,6 @@ workflows:
       - test:
           requires:
             - build
-      - snyk-scan:
-          requires:
-            - test
       - dependency-scan:
           requires:
             - test
@@ -136,13 +141,16 @@ workflows:
       - create-image:
           requires:
             - test
-      - image-scan:
+      - anchore-image-scan:
           requires:
             - create-image
-      - hold:
-          type: approval
+      - snyk-image-scan:
           requires:
-            - image-scan
-      - deploy:
-          requires:
-            - hold
+            - create-image
+#      - hold:
+#          type: approval
+#          requires:
+#            - image-scan
+#      - deploy:
+#          requires:
+#            - hold
