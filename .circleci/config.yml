@@ -83,7 +83,7 @@ jobs:
           dockerfile_path: ./Dockerfile
           image_name: '${IMAGE_REPO_AND_NAME}'
           policy_bundle_file_path: .circleci/.anchore/policy_bundle.json
-          policy_failure: true
+          policy_failure: false
           timeout: '500'
       - anchore/parse_reports
       - store_artifacts:
@@ -103,6 +103,7 @@ jobs:
           command: 'docker load -i /tmp/workspace/temp_archive.tar'
       - snyk/scan:
           docker-image-name: '${IMAGE_REPO_AND_NAME}'
+          fail-on-issues: false
           severity-threshold: high
           target-file: Dockerfile
           token-variable: SNYK_TOKEN
@@ -150,10 +151,10 @@ workflows:
       - snyk-image-scan:
           requires:
             - create-image
-#      - hold:
-#          type: approval
-#          requires:
-#            - image-scan
-#      - deploy:
-#          requires:
-#            - hold
+      - hold:
+          type: approval
+          requires:
+            - image-scan
+      - deploy:
+          requires:
+            - hold
