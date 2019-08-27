@@ -102,12 +102,12 @@ jobs:
       - run:
           command: 'docker load -i /tmp/workspace/temp_archive.tar'
       - snyk/scan:
-        docker-image-name: '${IMAGE_REPO_AND_NAME}'
-        fail-on-issues: false
-        monitor-on-build: true
-        severity-threshold: high
-        target-file: Dockerfile
-        token-variable: SNYK_TOKEN
+          docker-image-name: '${IMAGE_REPO_AND_NAME}'
+          fail-on-issues: false
+          monitor-on-build: true
+          severity-threshold: high
+          target-file: Dockerfile
+          token-variable: SNYK_TOKEN
   deploy:
     docker:
       - image: circleci/openjdk:11-jdk
