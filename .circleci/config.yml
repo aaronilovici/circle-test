@@ -1,6 +1,7 @@
 # Compile Code, Unit Test, Dependency Scan, Static Analysis Scan, Build Image, Vulnerability Scan, Deploy Image to DockerHub
 version: 2.1
 orbs:
+  snyk: snyk/snyk@0.0.8
   anchore: anchore/anchore-engine@1.4.0
 jobs:
   build:
@@ -24,6 +25,13 @@ jobs:
           path: ~/test-results
       - store_artifacts:
           path: ~/test-results/junit
+  snyk-scan:
+    docker:
+      - image: 'circleci/node:4.8.2'
+      steps:
+        - checkout
+        - run: npm install -q
+        - snyk/scan
   dependency-scan:
     docker:
       - image: circleci/openjdk:11-jdk
@@ -58,10 +66,10 @@ jobs:
           docker_layer_caching: true
       - checkout
       - run:
-          command: 'docker build -t "aaronilovici/circletestrepo:1.0.test" .'
+          command: 'docker build -t "${IMAGE_REPO_AND_NAME}" .'
       - run: mkdir -p workspace
       - run:
-          command: 'docker save aaronilovici/circletestrepo:1.0.test > workspace/circle-test_latest.tar'
+          command: 'docker save ${IMAGE_REPO_AND_NAME} > workspace/temp_archive.tar'
       - persist_to_workspace:
           root: workspace
           paths:
@@ -77,10 +85,10 @@ jobs:
       - run:
           command: 'ls -al /tmp/workspace'
       - run:
-          command: 'docker load -i /tmp/workspace/circle-test_latest.tar'
+          command: 'docker load -i /tmp/workspace/temp_archive.tar'
       - anchore/analyze_local_image:
           dockerfile_path: ./Dockerfile
-          image_name: 'aaronilovici/circletestrepo:1.0.test'
+          image_name: '${IMAGE_REPO_AND_NAME}'
           policy_bundle_file_path: .circleci/.anchore/policy_bundle.json
           policy_failure: true
           timeout: '500'
@@ -103,7 +111,7 @@ jobs:
       - run:
           command: 'docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}'
       - run:
-          command: 'docker push docker.io/aaronilovici/circletestrepo:1.0.test'
+          command: 'docker push docker.io/${IMAGE_REPO_AND_NAME}'
 
 workflows:
   fullrun:
@@ -118,8 +126,8 @@ workflows:
       - quality-scan:
           requires:
             - test
-          sonar_key: aaronilovici_circle-test
-          sonar_org: aaronilovici
+          sonar_key: ${SONAR_KEY}
+          sonar_org: ${SONAR_ORG}
           sonar_url: https://sonarcloud.io
           sonar_token: ${SONAR_TOKEN}
       - create-image:
