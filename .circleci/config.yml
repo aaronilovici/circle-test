@@ -27,11 +27,11 @@ jobs:
           path: ~/test-results/junit
   snyk-scan:
     docker:
-      - image: 'circleci/node:4.8.2'
-      steps:
-        - checkout
-        - run: npm install -q
-        - snyk/scan
+      - image: circleci/node:4.8.2
+    steps:
+      - checkout
+      - run: npm install -q
+      - snyk/scan
   dependency-scan:
     docker:
       - image: circleci/openjdk:11-jdk
