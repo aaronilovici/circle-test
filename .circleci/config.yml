@@ -112,7 +112,6 @@ jobs:
       - image: circleci/openjdk:11-jdk
     steps:
       - checkout
-#      - run: npm install -q
       - snyk/scan:
           severity-threshold: high
           token-variable: SNYK_TOKEN
@@ -147,27 +146,28 @@ workflows:
       - snyk-dependency-scan:
           requires:
             - test
-#      - quality-scan:
-#          requires:
-#            - test
-#          sonar_key: ${SONAR_KEY}
-#          sonar_org: ${SONAR_ORG}
-#          sonar_url: https://sonarcloud.io
-#          sonar_token: ${SONAR_TOKEN}
-      - create-image:
+      - quality-scan:
           requires:
             - test
+          sonar_key: ${SONAR_KEY}
+          sonar_org: ${SONAR_ORG}
+          sonar_url: https://sonarcloud.io
+          sonar_token: ${SONAR_TOKEN}
+      - create-image:
+          requires:
+            - dependency-scan
+            - snyk-dependency-scan
       - anchore-image-scan:
           requires:
             - create-image
       - snyk-image-scan:
           requires:
             - create-image
-#      - hold:
-#          type: approval
-#          requires:
-#            - anchore-image-scan
-#            - snyk-image-scan
-#      - deploy:
-#          requires:
-#            - hold
+      - hold:
+          type: approval
+          requires:
+            - anchore-image-scan
+            - snyk-image-scan
+      - deploy:
+          requires:
+            - hold
