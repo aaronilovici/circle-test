@@ -107,6 +107,13 @@ jobs:
           severity-threshold: high
           target-file: Dockerfile
           token-variable: SNYK_TOKEN
+  snyk-dependency-scan:
+    docker:
+      - image: 'circleci/node:4.8.2'
+    steps:
+      - checkout
+      - run: npm install -q
+      - snyk/scan
   deploy:
     docker:
       - image: circleci/openjdk:11-jdk
@@ -135,13 +142,16 @@ workflows:
       - dependency-scan:
           requires:
             - test
-      - quality-scan:
+      - snyk-dependency-scan:
           requires:
             - test
-          sonar_key: ${SONAR_KEY}
-          sonar_org: ${SONAR_ORG}
-          sonar_url: https://sonarcloud.io
-          sonar_token: ${SONAR_TOKEN}
+#      - quality-scan:
+#          requires:
+#            - test
+#          sonar_key: ${SONAR_KEY}
+#          sonar_org: ${SONAR_ORG}
+#          sonar_url: https://sonarcloud.io
+#          sonar_token: ${SONAR_TOKEN}
       - create-image:
           requires:
             - test
@@ -151,11 +161,11 @@ workflows:
       - snyk-image-scan:
           requires:
             - create-image
-      - hold:
-          type: approval
-          requires:
-            - anchore-image-scan
-            - snyk-image-scan
-      - deploy:
-          requires:
-            - hold
+#      - hold:
+#          type: approval
+#          requires:
+#            - anchore-image-scan
+#            - snyk-image-scan
+#      - deploy:
+#          requires:
+#            - hold
