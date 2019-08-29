@@ -1,6 +1,7 @@
 # Compile Code, Unit Test, Dependency Scan, Static Analysis Scan, Build Image, Vulnerability Scan, Deploy Image to DockerHub
 version: 2.1
 orbs:
+  snyk: snyk/snyk@0.0.8
   anchore: anchore/anchore-engine@1.4.0
 jobs:
   build:
@@ -58,15 +59,15 @@ jobs:
           docker_layer_caching: true
       - checkout
       - run:
-          command: 'docker build -t "aaronilovici/circletestrepo:1.0.test" .'
+          command: 'docker build -t "${IMAGE_REPO_AND_NAME}" .'
       - run: mkdir -p workspace
       - run:
-          command: 'docker save aaronilovici/circletestrepo:1.0.test > workspace/circle-test_latest.tar'
+          command: 'docker save ${IMAGE_REPO_AND_NAME} > workspace/temp_archive.tar'
       - persist_to_workspace:
           root: workspace
           paths:
-            - circle-test_latest.tar
-  image-scan:
+            - temp_archive.tar
+  anchore-image-scan:
     executor: anchore/anchore_engine
     steps:
       - setup_remote_docker:
@@ -77,16 +78,43 @@ jobs:
       - run:
           command: 'ls -al /tmp/workspace'
       - run:
-          command: 'docker load -i /tmp/workspace/circle-test_latest.tar'
+          command: 'docker load -i /tmp/workspace/temp_archive.tar'
       - anchore/analyze_local_image:
           dockerfile_path: ./Dockerfile
-          image_name: 'aaronilovici/circletestrepo:1.0.test'
+          image_name: '${IMAGE_REPO_AND_NAME}'
           policy_bundle_file_path: .circleci/.anchore/policy_bundle.json
-          policy_failure: true
+          policy_failure: false
           timeout: '500'
       - anchore/parse_reports
       - store_artifacts:
           path: anchore-reports
+  snyk-image-scan:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          command: 'ls -al /tmp/workspace'
+      - run:
+          command: 'docker load -i /tmp/workspace/temp_archive.tar'
+      - snyk/scan:
+          docker-image-name: '${IMAGE_REPO_AND_NAME}'
+          fail-on-issues: false
+          severity-threshold: high
+          target-file: Dockerfile
+          token-variable: SNYK_TOKEN
+  snyk-dependency-scan:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - checkout
+      - snyk/scan:
+          severity-threshold: high
+          token-variable: SNYK_TOKEN
   deploy:
     docker:
       - image: circleci/openjdk:11-jdk
@@ -99,11 +127,11 @@ jobs:
       - run:
           command: 'ls -al /tmp/workspace'
       - run:
-          command: 'docker load -i /tmp/workspace/circle-test_latest.tar'
+          command: 'docker load -i /tmp/workspace/temp_archive.tar'
       - run:
           command: 'docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}'
       - run:
-          command: 'docker push docker.io/aaronilovici/circletestrepo:1.0.test'
+          command: 'docker push docker.io/${IMAGE_REPO_AND_NAME}'
 
 workflows:
   fullrun:
@@ -115,23 +143,31 @@ workflows:
       - dependency-scan:
           requires:
             - test
+      - snyk-dependency-scan:
+          requires:
+            - test
       - quality-scan:
           requires:
             - test
-          sonar_key: aaronilovici_circle-test
-          sonar_org: aaronilovici
+          sonar_key: ${SONAR_KEY}
+          sonar_org: ${SONAR_ORG}
           sonar_url: https://sonarcloud.io
           sonar_token: ${SONAR_TOKEN}
       - create-image:
           requires:
-            - test
-      - image-scan:
+            - dependency-scan
+            - snyk-dependency-scan
+      - anchore-image-scan:
+          requires:
+            - create-image
+      - snyk-image-scan:
           requires:
             - create-image
       - hold:
           type: approval
           requires:
-            - image-scan
+            - anchore-image-scan
+            - snyk-image-scan
       - deploy:
           requires:
             - hold
