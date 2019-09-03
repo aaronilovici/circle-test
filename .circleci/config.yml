@@ -46,11 +46,14 @@ jobs:
     steps:
       - checkout
       - run:
-          command: |
-            if [[ ! -z $CIRCLE_PULL_REQUEST ]];
-            then
-              ./gradlew sonarqube -Dsonar.projectKey=<<parameters.sonar_key>> -Dsonar.organization=<<parameters.sonar_org>> -Dsonar.host.url=<<parameters.sonar_url>> -Dsonar.login=<<parameters.sonar_token>> -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.base=master --info
-            fi
+          ./gradlew sonarqube
+          -Dsonar.projectKey=<<parameters.sonar_key>>
+          -Dsonar.organization=<<parameters.sonar_org>>
+          -Dsonar.host.url=<<parameters.sonar_url>>
+          -Dsonar.login=<<parameters.sonar_token>>
+          -Dsonar.branch.target=master
+          -Dsonar.branch.name=${CIRCLE_BRANCH}
+          --info
   create-image:
     docker:
       - image: circleci/openjdk:11-jdk
