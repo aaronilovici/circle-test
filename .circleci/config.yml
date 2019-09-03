@@ -163,11 +163,11 @@ workflows:
       - snyk-image-scan:
           requires:
             - create-image
-      - hold:
-          type: approval
-          requires:
-            - anchore-image-scan
-            - snyk-image-scan
-      - deploy:
-          requires:
-            - hold
+#      - hold:
+#          type: approval
+#          requires:
+#            - anchore-image-scan
+#            - snyk-image-scan
+#      - deploy:
+#          requires:
+#            - hold
