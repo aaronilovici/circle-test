@@ -18,7 +18,7 @@ jobs:
       - run:
           name: Maven install without tests
           command: |
-            mvn clean install -DskipTests $DISABLE_DOWNLOAD_PROGRESS_OPTS
+            mvn -B install -DskipTests $DISABLE_DOWNLOAD_PROGRESS_OPTS
     # Execute unit tests separate from other executions to track performance
   Test:
     docker: *image
@@ -49,8 +49,10 @@ jobs:
           command: |
             if [ $RELEASE = true ]
             then
+              git config user.name "Aaron"
+              git config user.email "aaronilovici@connexta.com"
               mvn release:clean
-              mvn -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments=-Dgpg.passphrase=${GPG_PASSPHRASE} release:prepare
+              mvn -B -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments=-Dgpg.passphrase=${GPG_PASSPHRASE} release:prepare
             fi
 
 #  Deploy Artifacts: # Deploy artifacts to Nexus or Maven Central
