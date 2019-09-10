@@ -12,6 +12,7 @@ jobs:
           name: Setting environment
           # DISABLE_DOWNLOAD_PROGRESS_OPTS - this variable simplifies the overall logging output from maven by restricting to warn level
           command: |
+            gpg --no-tty --batch --passphrase ${GPG_PASSPHRASE} --pinentry-mode loopback --output secrets.env --decrypt secrets.env.gpg
             echo "export DISABLE_DOWNLOAD_PROGRESS_OPTS=-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" >> $BASH_ENV
             source $BASH_ENV
       - checkout # Built in GitHub repo checkout
