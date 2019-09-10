@@ -49,6 +49,7 @@ jobs:
           command: |
             if [ $RELEASE = true ]
             then
+              git remote add ssh-origin git@github.com:$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git
               git config --global user.name "Aaron"
               git config --global user.email "aaron.ilovici@connexta.com"
               mvn -B -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments=-Dgpg.passphrase=${GPG_PASSPHRASE} release:prepare
