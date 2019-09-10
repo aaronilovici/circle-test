@@ -46,6 +46,7 @@ jobs:
           command: |
             if [ $RELEASE = true ]
             then
+              mvn release:clean
               mvn -B -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Dgpg.secretKeyring=${ION_GPG_KEYRING} -Dgpg.publicKeyring=${ION_GPG_KEYRING} release:prepare
             fi
 
