@@ -18,7 +18,7 @@ jobs:
       - run:
           name: Maven install without tests
           command: |
-            mvn install -B -DskipTests $DISABLE_DOWNLOAD_PROGRESS_OPTS
+            mvn clean install -B -DskipTests $DISABLE_DOWNLOAD_PROGRESS_OPTS
     # Execute unit tests separate from other executions to track performance
   Test:
     docker: *image
