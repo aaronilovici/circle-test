@@ -16,9 +16,6 @@ jobs:
             source $BASH_ENV
       - checkout # Built in GitHub repo checkout
       - run:
-          name: import GPG key
-          command: echo -e "$GPG_KEY" | gpg --import
-      - run:
           name: Maven install without tests
           command: |
             mvn clean install -B -DskipTests $DISABLE_DOWNLOAD_PROGRESS_OPTS
