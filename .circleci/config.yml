@@ -5,31 +5,30 @@ orbs:
   anchore: anchore/anchore-engine@1.4.0
 jobs:
   Build:
-    docker: &image
+    docker: &image # The '&image' setups up a reference tag to be used by '*image' (see unit tests)
       - image: circleci/openjdk:11-jdk
     steps:
-      - checkout
-      - run: &env
+      - run: &env # does the same as '&image' above and see usage below in unit tests
           name: Setting environment
+          # DISABLE_DOWNLOAD_PROGRESS_OPTS - this variable simplifies the overall logging output from maven by restricting to warn level
           command: |
             echo "export DISABLE_DOWNLOAD_PROGRESS_OPTS=-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" >> $BASH_ENV
             source $BASH_ENV
-      - run: ./gradlew clean build -x test
-  Test:
-    docker:
-      - image: circleci/openjdk:11-jdk
-    steps:
-      - checkout
-      - run: ./gradlew clean build
+      - checkout # Built in GitHub repo checkout
       - run:
+          name: Maven install without tests
           command: |
-            mkdir -p ~/test-results/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
-          when: always
-      - store_test_results:
-          path: ~/test-results
-      - store_artifacts:
-          path: ~/test-results/junit
+            mvn install -B -DskipTests $DISABLE_DOWNLOAD_PROGRESS_OPTS
+    # Execute unit tests separate from other executions to track performance
+  Test:
+    docker: *image
+    steps:
+      - run: *env
+      - checkout
+      - run:
+          name: Maven test phase
+          command: |
+            mvn test -B $DISABLE_DOWNLOAD_PROGRESS_OPTS
   Tag Release:
     docker: *image
     steps:
