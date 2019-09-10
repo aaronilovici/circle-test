@@ -4,13 +4,18 @@ orbs:
   snyk: snyk/snyk@0.0.8
   anchore: anchore/anchore-engine@1.4.0
 jobs:
-  build:
-    docker:
+  Build:
+    docker: &image
       - image: circleci/openjdk:11-jdk
     steps:
       - checkout
+      - run: &env
+          name: Setting environment
+          command: |
+            echo "export DISABLE_DOWNLOAD_PROGRESS_OPTS=-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" >> $BASH_ENV
+            source $BASH_ENV
       - run: ./gradlew clean build -x test
-  test:
+  Test:
     docker:
       - image: circleci/openjdk:11-jdk
     steps:
@@ -25,149 +30,58 @@ jobs:
           path: ~/test-results
       - store_artifacts:
           path: ~/test-results/junit
-  dependency-scan:
-    docker:
-      - image: circleci/openjdk:11-jdk
+  Tag Release:
+    docker: *image
     steps:
-      - checkout
-      - run: ./gradlew dependencyCheckAnalyze
-  quality-scan:
-    docker:
-      - image: circleci/openjdk:11-jdk
-    parameters:
-      sonar_key:
-        type: string
-      sonar_org:
-        type: string
-      sonar_url:
-        type: string
-      sonar_token:
-        type: string
-    steps:
+      # Tag Release creates a Git tag with given name and pushes it to the given GitHub repo
+      # This job is governed by the following environment variables:
+      # $RELEASE - Set to true to perform a release, otherwise this step is skipped
+      # $RELEASE_TAG - The release tag for this version
+      # $RELEASE_VERSION - The version to release
+      # $NEXT_VERSION - The next development version
+      # To use this step the following MUST also be set: $GITHUB_KEY and $ION_GPG_KEYRING
       - checkout
       - run:
+          name: Tag Release
+          # Create a new tag in a new remote and pushing it back to origin
           command: |
-            if [[ ! -z $CIRCLE_PULL_REQUEST ]];
+            if [ $RELEASE = true ]
             then
-              ./gradlew sonarqube -Dsonar.projectKey=<<parameters.sonar_key>> -Dsonar.organization=<<parameters.sonar_org>> -Dsonar.host.url=<<parameters.sonar_url>> -Dsonar.login=<<parameters.sonar_token>> -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.base=master --info
+              mvn -B -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Dgpg.secretKeyring=${ION_GPG_KEYRING} -Dgpg.publicKeyring=${ION_GPG_KEYRING} release:prepare
+              git checkout $CIRCLE_SHA1
+              git remote add ssh-origin git@github.com:connexta/$CIRCLE_PROJECT_REPONAME.git
+              echo ssh -i ${GITHUB_KEY} -l git -o StrictHostKeyChecking=no \\"\\$@\\" > run_ssh.sh
+              chmod +x run_ssh.sh
+              git push ssh-origin HEAD:$CIRCLE_BRANCH && git push ssh-origin $RELEASE_TAG
             fi
-  create-image:
-    docker:
-      - image: circleci/openjdk:11-jdk
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - checkout
-      - run:
-          command: 'docker build -t "${IMAGE_REPO_AND_NAME}" .'
-      - run: mkdir -p workspace
-      - run:
-          command: 'docker save ${IMAGE_REPO_AND_NAME} > workspace/temp_archive.tar'
-      - persist_to_workspace:
-          root: workspace
-          paths:
-            - temp_archive.tar
-  anchore-image-scan:
-    executor: anchore/anchore_engine
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          command: 'ls -al /tmp/workspace'
-      - run:
-          command: 'docker load -i /tmp/workspace/temp_archive.tar'
-      - anchore/analyze_local_image:
-          dockerfile_path: ./Dockerfile
-          image_name: '${IMAGE_REPO_AND_NAME}'
-          policy_bundle_file_path: .circleci/.anchore/policy_bundle.json
-          policy_failure: false
-          timeout: '500'
-      - anchore/parse_reports
-      - store_artifacts:
-          path: anchore-reports
-  snyk-image-scan:
-    docker:
-      - image: circleci/openjdk:11-jdk
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          command: 'ls -al /tmp/workspace'
-      - run:
-          command: 'docker load -i /tmp/workspace/temp_archive.tar'
-      - snyk/scan:
-          docker-image-name: '${IMAGE_REPO_AND_NAME}'
-          fail-on-issues: false
-          severity-threshold: high
-          target-file: Dockerfile
-          token-variable: SNYK_TOKEN
-  snyk-dependency-scan:
-    docker:
-      - image: circleci/openjdk:11-jdk
-    steps:
-      - checkout
-      - snyk/scan:
-          severity-threshold: high
-          token-variable: SNYK_TOKEN
-  deploy:
-    docker:
-      - image: circleci/openjdk:11-jdk
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          command: 'ls -al /tmp/workspace'
-      - run:
-          command: 'docker load -i /tmp/workspace/temp_archive.tar'
-      - run:
-          command: 'docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}'
-      - run:
-          command: 'docker push docker.io/${IMAGE_REPO_AND_NAME}'
+  Deploy Artifacts: # Deploy artifacts to Nexus or Maven Central
+      docker: *image
+      steps:
+        # Deploy Artifacts uses the Maven Deploy plugin and it's configuration from the pom.xml to deploy an artifact
+        # This job is governed by the following environment variables:
+        # $RELEASE - Set to true to perform a release, otherwise this step is skipped
+        # To use this step the following MUST also be set: $GITHUB_KEY and $ION_GPG_KEYRING
+        - run: *env
+        - checkout
+        - run:
+            name: Deploy Artifacts
+            command: |
+              if [ $RELEASE = true ]
+              then
+                mvn javadoc:aggregate -B -DskipTests -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
+                mvn deploy -B -DskipTests -DretryFailedDeploymentCount=10 -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS -Dgpg.secretKeyring=${ION_GPG_KEYRING} -Dgpg.publicKeyring=${ION_GPG_KEYRING} -Dgpg.passphraseServerId=\"ion-signing\"
+              fi
 
 workflows:
   fullrun:
     jobs:
-      - build
-      - test:
+      - Build
+      - Test:
           requires:
-            - build
-      - dependency-scan:
+            - Build
+      - Tag Release:
           requires:
-            - test
-      - snyk-dependency-scan:
+            - Test
+      - Deploy Artifacts:
           requires:
-            - test
-      - quality-scan:
-          requires:
-            - test
-          sonar_key: ${SONAR_KEY}
-          sonar_org: ${SONAR_ORG}
-          sonar_url: https://sonarcloud.io
-          sonar_token: ${SONAR_TOKEN}
-      - create-image:
-          requires:
-            - dependency-scan
-            - snyk-dependency-scan
-      - anchore-image-scan:
-          requires:
-            - create-image
-      - snyk-image-scan:
-          requires:
-            - create-image
-      - hold:
-          type: approval
-          requires:
-            - anchore-image-scan
-            - snyk-image-scan
-      - deploy:
-          requires:
-            - hold
+            - Tag Release
