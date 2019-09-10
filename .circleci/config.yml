@@ -47,9 +47,8 @@ jobs:
             if [ $RELEASE = true ]
             then
               mvn release:clean
-              mvn -B -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Dgpg.secretKeyring=${ION_GPG_KEYRING} -Dgpg.publicKeyring=${ION_GPG_KEYRING} release:prepare
+              mvn -B -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments=-Dgpg.passphrase=${GPG_PASSPHRASE} release:prepare
             fi
-
 
 #  Deploy Artifacts: # Deploy artifacts to Nexus or Maven Central
 #      docker: *image
@@ -79,6 +78,6 @@ workflows:
       - Tag Release:
           requires:
             - Test
-      - Deploy Artifacts:
-          requires:
-            - Tag Release
+#      - Deploy Artifacts:
+#          requires:
+#            - Tag Release
