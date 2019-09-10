@@ -38,7 +38,7 @@ jobs:
       # $RELEASE_TAG - The release tag for this version
       # $RELEASE_VERSION - The version to release
       # $NEXT_VERSION - The next development version
-      # To use this step the following MUST also be set: $GITHUB_KEY and $ION_GPG_KEYRING
+      # To use this step the following MUST also be set: $GITHUB_KEY and $GPG_PASSPHRASE
       - checkout
       - run:
           name: Import GPG key
@@ -49,8 +49,8 @@ jobs:
           command: |
             if [ $RELEASE = true ]
             then
-              git config user.name "Aaron"
-              git config user.email "aaronilovici@connexta.com"
+              git config --global user.name "Aaron"
+              git config --global user.email "aaronilovici@connexta.com"
               mvn release:clean
               mvn -B -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments=-Dgpg.passphrase=${GPG_PASSPHRASE} release:prepare
             fi
