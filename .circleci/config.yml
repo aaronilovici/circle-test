@@ -42,7 +42,8 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "3a:ce:3c:76:2a:d6:f3:22:9c:3f:74:da:85:1d:51:5b"
+            - "7d:c7:cd:b5:88:19:73:bf:3b:c6:ee:71:e9:36:d0:e9"
+"
       - run:
           name: Import GPG key
           command: echo -e "${GPG_KEY}" | gpg --import --no-tty --batch --yes
