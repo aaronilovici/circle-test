@@ -7,8 +7,8 @@
 
     <scm>
         <url>http://github.com/aaronilovici/circle-test.git</url>
-        <connection>scm:git:http://github.com/aaronilovici/circle-test.git</connection>
-        <developerConnection>scm:git:http://github.com/aaronilovici/circle-test.git</developerConnection>
+        <connection>scm:git:git@github.com:aaronilovici/circle-test.git</connection>
+        <developerConnection>scm:git:git@github.com:aaronilovici/circle-test.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
