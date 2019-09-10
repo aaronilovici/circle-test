@@ -16,12 +16,9 @@ jobs:
             source $BASH_ENV
       - checkout # Built in GitHub repo checkout
       - run:
-          name: Import GPG key
-          command: echo -e "${GPG_KEY}" | gpg --import --no-tty --batch --yes
-      - run:
           name: Maven install without tests
           command: |
-            mvn clean install -B -DskipTests $DISABLE_DOWNLOAD_PROGRESS_OPTS
+            mvn clean install -DskipTests $DISABLE_DOWNLOAD_PROGRESS_OPTS
     # Execute unit tests separate from other executions to track performance
   Test:
     docker: *image
@@ -44,13 +41,16 @@ jobs:
       # To use this step the following MUST also be set: $GITHUB_KEY and $ION_GPG_KEYRING
       - checkout
       - run:
+          name: Import GPG key
+          command: echo -e "${GPG_KEY}" | gpg --import --no-tty --batch --yes
+      - run:
           name: Tag Release
           # Create a new tag in a new remote and pushing it back to origin
           command: |
             if [ $RELEASE = true ]
             then
               mvn release:clean
-              mvn -B -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments=-Dgpg.passphrase=${GPG_PASSPHRASE} release:prepare
+              mvn -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments=-Dgpg.passphrase=${GPG_PASSPHRASE} release:prepare
             fi
 
 #  Deploy Artifacts: # Deploy artifacts to Nexus or Maven Central
