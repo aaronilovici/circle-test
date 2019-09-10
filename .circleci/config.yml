@@ -44,14 +44,19 @@ jobs:
           name: Import GPG key
           command: echo -e "${GPG_KEY}" | gpg --import --no-tty --batch --yes
       - run:
-          name: Tag Release
-          # Create a new tag in a new remote and pushing it back to origin
+          name: Set Up Git
           command: |
             if [ $RELEASE = true ]
             then
-              git remote add ssh-origin git@github.com:$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git
+              git remote add ssh-origin git@github.com:aaronilovici/circle-test.git
               git config --global user.name "Aaron"
               git config --global user.email "aaron.ilovici@connexta.com"
+            fi
+      - run:
+          name: Tag Release
+          command: |
+            if [ $RELEASE = true ]
+            then
               mvn -B -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments=-Dgpg.passphrase=${GPG_PASSPHRASE} release:prepare
             fi
 
