@@ -40,18 +40,12 @@ jobs:
       # $NEXT_VERSION - The next development version
       # To use this step the following MUST also be set: $GITHUB_KEY and $GPG_PASSPHRASE
       - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "3a:ce:3c:76:2a:d6:f3:22:9c:3f:74:da:85:1d:51:5b"
       - run:
           name: Import GPG key
           command: echo -e "${GPG_KEY}" | gpg --import --no-tty --batch --yes
-      - run:
-          name: Set Up Git
-          command: |
-            if [ $RELEASE = true ]
-            then
-              git remote add ssh-origin git@github.com:aaronilovici/circle-test.git
-              git config --global user.name "Aaron"
-              git config --global user.email "aaron.ilovici@connexta.com"
-            fi
       - run:
           name: Tag Release
           command: |
