@@ -9,8 +9,19 @@
         <url>http://github.com/aaronilovici/circle-test.git</url>
         <connection>scm:git:git@github.com:aaronilovici/circle-test.git</connection>
         <developerConnection>scm:git:git@github.com:aaronilovici/circle-test.git</developerConnection>
-        <tag>v1.7</tag>
+        <tag>v1.8</tag>
     </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>maven-repository</id>
+            <url>file:///tmp/testmavendeploy/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>maven-repository</id>
+            <url>file:///tmp/testmavendeploy</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <java.version>11</java.version>
