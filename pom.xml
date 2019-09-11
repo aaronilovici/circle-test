@@ -9,7 +9,7 @@
         <url>http://github.com/aaronilovici/circle-test.git</url>
         <connection>scm:git:git@github.com:aaronilovici/circle-test.git</connection>
         <developerConnection>scm:git:git@github.com:aaronilovici/circle-test.git</developerConnection>
-        <tag>v1.9</tag>
+        <tag>v1.10</tag>
     </scm>
 
     <distributionManagement>

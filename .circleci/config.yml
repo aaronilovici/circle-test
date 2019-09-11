@@ -62,7 +62,7 @@ jobs:
               if [ $RELEASE = true ]
               then
                 mvn javadoc:aggregate -B -DskipTests -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
-                mvn deploy -B -DskipTests -DretryFailedDeploymentCount=10 -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS -Darguments=-Dgpg.passphrase=${GPG_PASSPHRASE}
+                mvn deploy -B -DskipTests -DretryFailedDeploymentCount=10 -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS --info
               fi
 
 workflows:
