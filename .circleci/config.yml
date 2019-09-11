@@ -40,18 +40,12 @@ jobs:
       # $NEXT_VERSION - The next development version
       # To use this step the following MUST also be set: $GITHUB_KEY and $GPG_PASSPHRASE
       - checkout
-#      - add_ssh_keys:
-#          fingerprints:
-#            - "7d:c7:cd:b5:88:19:73:bf:3b:c6:ee:71:e9:36:d0:e9"
-      - run:
-          name: Import GPG key
-          command: echo -e "${GPG_KEY}" | gpg --import --no-tty --batch --yes
       - run:
           name: Tag Release
           command: |
             if [ $RELEASE = true ]
             then
-              git config --global -l
+#              git config --global -l
               git config --global user.email "aaron.ilovici@connexta.com"
               git config --global user.name "Aaron"
               git remote rm origin
