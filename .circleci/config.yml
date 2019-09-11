@@ -62,7 +62,7 @@ jobs:
               if [ $RELEASE = true ]
               then
                 mvn javadoc:aggregate -B -DskipTests -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
-                mvn deploy -B -DskipTests -DretryFailedDeploymentCount=10 -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS --info
+                mvn deploy -B -DskipTests -DretryFailedDeploymentCount=10 -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS --debug
               fi
 
 workflows:
@@ -72,9 +72,9 @@ workflows:
       - Test:
           requires:
             - Build
-      - Tag Release:
-          requires:
-            - Test
+#      - Tag Release:
+#          requires:
+#            - Test
       - Deploy Artifacts:
           requires:
             - Tag Release
