@@ -78,13 +78,13 @@ workflows:
   fullrun:
     jobs:
       - Build:
-        <<: *exclude_auto_commits
+          <<: *exclude_auto_commits
       - Test:
-        <<: *exclude_auto_commits
-        requires:
+          <<: *exclude_auto_commits
+          requires:
             - Build
       - Tag Release:
-        <<: *exclude_auto_commits
+          <<: *exclude_auto_commits
           requires:
             - Test
 #      - Deploy Artifacts:
