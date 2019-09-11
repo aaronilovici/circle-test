@@ -45,6 +45,8 @@ jobs:
           command: |
             if [ $RELEASE = true ]
             then
+              git config --global user.email "circleci@circleci.com"
+              git config --global user.name "CircleCI"
               mvn -B -Dtag=${RELEASE_TAG} -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments=-Dgpg.passphrase=${GPG_PASSPHRASE} release:prepare
             fi
 
