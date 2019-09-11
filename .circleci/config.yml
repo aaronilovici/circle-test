@@ -77,7 +77,7 @@ exclude_auto_commits: &exclude_auto_commits
 workflows:
   fullrun:
     jobs:
-      - Build:
+      - Build
       - Test:
           <<: *exclude_auto_commits
           requires:
