@@ -45,7 +45,6 @@ jobs:
           command: |
             if [ $RELEASE = true ]
             then
-#              git config --global -l
               git config --global user.email "aaron.ilovici@connexta.com"
               git config --global user.name "Aaron"
               git remote rm origin
