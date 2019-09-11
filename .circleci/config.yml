@@ -72,7 +72,7 @@ exclude_auto_commits: &exclude_auto_commits
   filters:
     branches:
       ignore:
-        - /^.*release.*$
+        - /^.*release.*$/
 
 workflows:
   fullrun:
