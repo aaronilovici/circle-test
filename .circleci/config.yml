@@ -77,4 +77,4 @@ workflows:
 #            - Test
       - Deploy Artifacts:
           requires:
-            - Tag Release
+            - Test
